@@ -12,7 +12,7 @@
             "src/files/wechat.class.php"
         ],
         "psr-4": {
-            "Leo": "src/"
+            "Leo\\": "src/"
         }
     },
 
