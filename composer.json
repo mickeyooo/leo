@@ -1,0 +1,17 @@
+{
+    "name": "leo/leo",
+    "authors": [
+        {
+            "name": "huangjianhua",
+            "email": "fromhuang@msn.com"
+        }
+    ],
+
+    "autoload": {
+        "psr-4": {
+            "Leo": "src/"
+        }
+    },
+
+    "require": {}
+}
