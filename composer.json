@@ -9,7 +9,7 @@
 
     "autoload": {
         "files": [
-            "src/files/wechat.class.php"
+            "files/wechat.class.php"
         ],
         "psr-4": {
             "Leo\\": "src/"
