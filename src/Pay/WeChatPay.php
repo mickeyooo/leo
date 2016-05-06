@@ -2,17 +2,15 @@
 namespace Leo\Pay;
 
 use Leo\Pay\Exception\ArgumentException;
+use Leo\Pay\Exception\WeChatPayPostException;
 
 class WeChatPay extends PayAbstract
 {
-    private $_curlHelper = null;
-
     protected $app_id;
     protected $app_key;
     protected $partner_id;
     protected $cert_file_path;
     protected $key_file_path;
-
 
     /**
      * @param array $config
@@ -26,7 +24,7 @@ class WeChatPay extends PayAbstract
      *     "key_file_path" => "/tmp/apiclient_key.pem"
      *      ]
      * </code>
-     * 
+     *
      * @throws ArgumentException
      */
     public function __construct(array $config)
@@ -39,12 +37,13 @@ class WeChatPay extends PayAbstract
         $this->partner_id = $config['partner_id'];
         $this->app_key = $config['app_key'];
 
-        $this->cert_file_path = isset($config['cert_file_path']) ? $config['cert_file_path'] : "";
-        $this->key_file_path = isset($config['key_file_path']) ? $config['key_file_path'] : "";
+        $this->cert_file_path = isset($config['cert_file_path']) ? $config['cert_file_path'] : null;
+        $this->key_file_path = isset($config['key_file_path']) ? $config['key_file_path'] : null;
     }
 
     /**
-     *  退款
+     * 退款
+     * @link https://pay.weixin.qq.com/wiki/doc/api/jsapi_sl.php?chapter=9_4
      *
      * @param string $payOrderId 支付id
      * @param int $refundFee 退款总金额
@@ -57,6 +56,13 @@ class WeChatPay extends PayAbstract
      */
     public function refund($payOrderId, $refundFee, $totalFee, $transactionId)
     {
+        if (!($this->cert_file_path && is_file($this->cert_file_path))) {
+            throw new ArgumentException("证书文件 {$this->cert_file_path} 不存在");
+        }
+        if (!($this->key_file_path && is_file($this->key_file_path))) {
+            throw new ArgumentException("密钥文件 {$this->key_file_path} 不存在");
+        }
+
         $data = [
             "appid"          => $this->_app_id,
             "mch_id"         => $this->_partner_id,
@@ -69,7 +75,7 @@ class WeChatPay extends PayAbstract
             "transaction_id" => $transactionId,
         ];
         $data['sign'] = $this->getSign($data);
-        $response = $this->refundPost($data);
+        $response = $this->post($this->toXml($data), 'https://api.mch.weixin.qq.com/secapi/pay/refund', true);
 
         $this->parseResponseResult($response);
 
@@ -77,7 +83,7 @@ class WeChatPay extends PayAbstract
     }
 
     /**
-     *  获取请求参数签名
+     * 获取请求参数签名
      *
      * @link https://pay.weixin.qq.com/wiki/doc/api/app.php?chapter=4_3
      *
@@ -134,23 +140,10 @@ class WeChatPay extends PayAbstract
         throw new ArgumentException("签名无效");
     }
 
-    protected function refundPost($payload)
-    {
-        $xml = array2xml($payload);
-        $curlHelper = $this->getCurlHelper();
-
-        $curlHelper->option(CURLOPT_SSLCERTTYPE, 'PEM');
-        $curlHelper->option(CURLOPT_SSLCERT, $this->_cert_file_path);
-        $curlHelper->option(CURLOPT_SSLKEYTYPE, 'PEM');
-        $curlHelper->option(CURLOPT_SSLKEY, $this->_key_file_path);
-
-        return $curlHelper->post('secapi/pay/refund', $xml, 'xml');
-    }
-
     protected function parseResponseResult($data)
     {
         if (!$data || !isset($data['return_code'])) {
-            throw new ParamException("参数无效");
+            throw new ArgumentException("参数无效");
         }
 
         if ($data['return_code'] == 'SUCCESS') {
@@ -163,19 +156,75 @@ class WeChatPay extends PayAbstract
             $exceptionMessage = $data['return_msg'];
         }
 
-        throw new ParamException($exceptionMessage);
+        throw new ArgumentException($exceptionMessage);
     }
 
-    protected function getCurlHelper()
+    /**
+     * 输出xml字符
+     *
+     * @param array $data
+     *
+     * @return xml
+     **/
+    protected function toXml(array $data)
     {
-        if ($this->_curlHelper == null) {
-            $this->_curlHelper = loadHelper('CurlHelper');
-            $this->_curlHelper->initCURL([
-                'server'          => 'https://api.mch.weixin.qq.com',
-                'ssl_verify_peer' => false,
-            ]);
+        $xml = "<xml>";
+        foreach ($data as $key => $val) {
+            if (is_numeric($val)) {
+                $xml .= "<" . $key . ">" . $val . "</" . $key . ">";
+            } else {
+                $xml .= "<" . $key . "><![CDATA[" . $val . "]]></" . $key . ">";
+            }
+        }
+        $xml .= "</xml>";
+
+        return $xml;
+    }
+
+    /**
+     * 数据提交
+     *
+     * @param $xml
+     * @param $url
+     * @param bool $useCert 是否使用证书
+     * @param int $second 支付超时设置
+     *
+     * @return array
+     */
+    protected function post($xml, $url, $useCert = false, $second = 30)
+    {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_TIMEOUT, $second);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, TRUE);
+        // 严格校验
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+        // 设置header
+        curl_setopt($ch, CURLOPT_HEADER, FALSE);
+        // 要求结果为字符串且输出到屏幕上
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+
+        if ($useCert == true) {
+            //设置证书
+            //使用证书：cert 与 key 分别属于两个.pem文件
+            curl_setopt($ch, CURLOPT_SSLCERTTYPE, 'PEM');
+            curl_setopt($ch, CURLOPT_SSLCERT, $this->cert_file_path);
+            curl_setopt($ch, CURLOPT_SSLKEYTYPE, 'PEM');
+            curl_setopt($ch, CURLOPT_SSLKEY, $this->key_file_path);
         }
 
-        return $this->_curlHelper;
+        curl_setopt($ch, CURLOPT_POST, TRUE);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
+
+        if ($data = curl_exec($ch)) {
+            curl_close($ch);
+
+            return $data;
+        } else {
+            $error = curl_errno($ch);
+            curl_close($ch);
+
+            throw new WeChatPayPostException($xml, $url, "curl出错，错误码:$error");
+        }
     }
 }

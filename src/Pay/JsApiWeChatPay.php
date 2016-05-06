@@ -27,7 +27,8 @@ class JsApiWeChatPay extends WeChatPay implements PayInterface
     }
 
     /**
-     *  创建订单
+     * 创建订单
+     * @link https://pay.weixin.qq.com/wiki/doc/api/jsapi_sl.php?chapter=9_1
      *
      * @param string $payOrderId 订单号
      * @param string $body 商品或支付单简要描述
@@ -46,6 +47,7 @@ class JsApiWeChatPay extends WeChatPay implements PayInterface
         $data = [
             'appid'            => $this->app_id,
             'mch_id'           => $this->partner_id,
+            'sub_mch_id'=> '',
             'nonce_str'        => '',
             'body'             => $body,
             'out_trade_no'     => $payOrderId,
@@ -57,7 +59,7 @@ class JsApiWeChatPay extends WeChatPay implements PayInterface
             'time_expire'      => formatDate('YmdHis', $timeExpire)
         ];
         $data['sign'] = $this->getSign($data);
-        $response = $this->getCurlHelper()->post('pay/unifiedorder', array2xml($data), 'xml');
+        $response = $this->post($this->toXml($data), 'https://api.mch.weixin.qq.com/pay/unifiedorder');
         $responseData = $this->parseResponseResult($response);
 
         return [
