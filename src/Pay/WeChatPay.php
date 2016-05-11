@@ -7,8 +7,9 @@ use Leo\Pay\Exception\WeChatPayPostException;
 class WeChatPay extends PayAbstract
 {
     protected $app_id;
-    protected $app_key;
-    protected $partner_id;
+    protected $mch_id;
+    protected $sub_mch_id;
+    protected $sub_appid = '';
     protected $cert_file_path;
     protected $key_file_path;
 
@@ -18,8 +19,8 @@ class WeChatPay extends PayAbstract
      * <code>
      * $config = [
      *     "app_id" => "wxd930ea5d5a258f4f",
-     *     "partner_id" => "1900000109",
-     *     "app_key" => "192006250b4c09247ec02edce69f6a2d",
+     *     "mch_id" => "1301449201",
+     *     "sub_mch_id" => "1315302001",
      *     "cert_file_path" => "/tmp/apiclient_cert.pem",
      *     "key_file_path" => "/tmp/apiclient_key.pem"
      *      ]
@@ -29,13 +30,15 @@ class WeChatPay extends PayAbstract
      */
     public function __construct(array $config)
     {
-        if (!isset($config['app_id']) || !isset($config['partner_id']) || !isset($config['app_key'])) {
+        if (!isset($config['app_id']) || !isset($config['mch_id']) || !isset($config['sub_mch_id'])) {
             throw new ArgumentException("Invalid config array.");
         }
 
         $this->app_id = $config['app_id'];
-        $this->partner_id = $config['partner_id'];
-        $this->app_key = $config['app_key'];
+        $this->mch_id = $config['mch_id'];
+        $this->sub_mch_id = $config['sub_mch_id'];
+
+        isset($config['sub_appid']) && $this->sub_appid = $config['sub_appid'];
 
         $this->cert_file_path = isset($config['cert_file_path']) ? $config['cert_file_path'] : null;
         $this->key_file_path = isset($config['key_file_path']) ? $config['key_file_path'] : null;
@@ -43,11 +46,11 @@ class WeChatPay extends PayAbstract
 
     /**
      * 退款
-     * @link https://pay.weixin.qq.com/wiki/doc/api/jsapi_sl.php?chapter=9_4
+     * @link  https://pay.weixin.qq.com/wiki/doc/api/jsapi_sl.php?chapter=9_4
      *
-     * @param string $payOrderId 支付id
-     * @param int $refundFee 退款总金额
-     * @param int $totalFee 订单总金额，单位为分
+     * @param string $payOrderId    支付id
+     * @param int    $refundFee     退款总金额
+     * @param int    $totalFee      订单总金额，单位为分
      * @param string $transactionId 微信生成的订单号，在支付通知中有返回
      *
      * @return bool
@@ -184,10 +187,10 @@ class WeChatPay extends PayAbstract
     /**
      * 数据提交
      *
-     * @param $xml
-     * @param $url
+     * @param      $xml
+     * @param      $url
      * @param bool $useCert 是否使用证书
-     * @param int $second 支付超时设置
+     * @param int  $second  支付超时设置
      *
      * @return array
      */

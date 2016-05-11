@@ -30,13 +30,13 @@ class JsApiWeChatPay extends WeChatPay implements PayInterface
      * 创建订单
      * @link https://pay.weixin.qq.com/wiki/doc/api/jsapi_sl.php?chapter=9_1
      *
-     * @param string $payOrderId 订单号
-     * @param string $body 商品或支付单简要描述
-     * @param int $fee 订单总金额，单位为分
+     * @param string $payOrderId        订单号
+     * @param string $body              商品或支付单简要描述
+     * @param int    $fee               订单总金额，单位为分
      * @param string $notifyAbsoluteUrl 接收微信支付异步通知回调地址
-     * @param string $ip 用户端ip
-     * @param int $timeExpire 支付超时时间
-     * @param string $openId 微信openid
+     * @param string $ip                用户端ip
+     * @param int    $timeExpire        支付超时时间
+     * @param string $openId            微信openid
      *
      * @return array
      * @throws \Exception
@@ -46,8 +46,8 @@ class JsApiWeChatPay extends WeChatPay implements PayInterface
         $timeExpire = $timeExpire && $timeExpire > 5 ? time() + $timeExpire * 60 : time() + 900;
         $data = [
             'appid'            => $this->app_id,
-            'mch_id'           => $this->partner_id,
-            'sub_mch_id'=> '',
+            'mch_id'           => $this->mch_id,
+            'sub_mch_id'       => $this->sub_mch_id,
             'nonce_str'        => '',
             'body'             => $body,
             'out_trade_no'     => $payOrderId,
