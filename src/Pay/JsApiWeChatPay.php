@@ -36,15 +36,15 @@ class JsApiWeChatPay extends WeChatPay implements PayInterface
      * @param string $body              商品或支付单简要描述
      * @param int    $fee               订单总金额，单位为分
      * @param string $notifyAbsoluteUrl 接收微信支付异步通知回调地址
+     * @param string $openId            微信openid
      * @param string $ip                用户端ip
      * @param int    $timeExpire        支付超时(minutes)
      * @param string $openId            微信openid
-     *                                  int
      *
      * @return array
      * @throws \Exception
      */
-    public function buildOrder($payOrderId, $body, $fee, $notifyAbsoluteUrl, $ip, $timeExpire = 30, $openId = '')
+    public function buildOrder($payOrderId, $body, $fee, $notifyAbsoluteUrl, $openId, $ip, $timeExpire = 30)
     {
         $data = [
             'appid'            => $this->app_id,
