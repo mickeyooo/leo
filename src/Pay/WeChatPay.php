@@ -33,7 +33,7 @@ class WeChatPay extends PayAbstract
      */
     public function __construct(array $config)
     {
-        
+
 
         if (!isset($config['app_id']) || !isset($config['mch_id']) || !isset($config['app_key'])) {
             throw new ArgumentException("Invalid config array.");
@@ -203,6 +203,8 @@ class WeChatPay extends PayAbstract
     protected function post($xml, $url, $useCert = false, $second = 30)
     {
         $ch = curl_init();
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_TIMEOUT, $second);
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, TRUE);

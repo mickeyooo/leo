@@ -87,7 +87,7 @@ class JsApiWeChatPay extends WeChatPay implements PayInterface
         $data = [
             "appId"     => $this->app_id,
             "timeStamp" => time(),
-            "nonceStr"  => getRandString(32),
+            "nonceStr"  => $this->buildNonce(16),
             "package"   => "prepay_id=$prepayId",
             "signType"  => "MD5"
         ];
