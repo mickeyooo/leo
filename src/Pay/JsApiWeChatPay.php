@@ -12,6 +12,7 @@ class JsApiWeChatPay extends WeChatPay implements PayInterface
      * <code>
      * $config = [
      *       "app_id"         => "wxd930ea5d5a258f4f",
+     *       "app_key"        => "192006250b4c09247ec02edce69f6a2d",
      *       "mch_id"         => "1301449201",
      *       "sub_mch_id"     => "1315302001",
      *       "cert_file_path" => "/tmp/apiclient_cert.pem",

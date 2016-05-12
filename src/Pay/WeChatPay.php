@@ -7,6 +7,7 @@ use Leo\Pay\Exception\WeChatPayPostException;
 class WeChatPay extends PayAbstract
 {
     protected $app_id;
+    protected $app_key;
     protected $mch_id;
     protected $sub_mch_id;
     protected $sub_appid = '';
@@ -20,6 +21,7 @@ class WeChatPay extends PayAbstract
      * <code>
      * $config = [
      *       "app_id"         => "wxd930ea5d5a258f4f",
+     *       "app_key"        => "192006250b4c09247ec02edce69f6a2d",
      *       "mch_id"         => "1301449201",
      *       "sub_mch_id"     => "1315302001",
      *       "cert_file_path" => "/tmp/apiclient_cert.pem",
@@ -33,11 +35,12 @@ class WeChatPay extends PayAbstract
     {
         
 
-        if (!isset($config['app_id']) || !isset($config['mch_id']) || !isset($config['sub_mch_id'])) {
+        if (!isset($config['app_id']) || !isset($config['mch_id']) || !isset($config['app_key'])) {
             throw new ArgumentException("Invalid config array.");
         }
 
         $this->app_id = $config['app_id'];
+        $this->app_key = $config['app_key'];
         $this->mch_id = $config['mch_id'];
         $this->sub_mch_id = $config['sub_mch_id'];
 
