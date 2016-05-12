@@ -48,7 +48,6 @@ class JsApiWeChatPay extends WeChatPay implements PayInterface
         $data = [
             'appid'            => $this->app_id,
             'mch_id'           => $this->mch_id,
-            'sub_mch_id'       => $this->sub_mch_id,
             'nonce_str'        => $this->buildNonce(16),
             'body'             => $body,
             'out_trade_no'     => $payOrderId,
@@ -59,6 +58,7 @@ class JsApiWeChatPay extends WeChatPay implements PayInterface
             'openid'           => $openId ?: '',
             'time_expire'      => date('YmdHis', time() + (int)$timeExpire)
         ];
+        $this->sub_mch_id && $data['sub_mch_id'] = $this->sub_mch_id;
         $data['sign'] = $this->getSign($data);
         $response = $this->post($this->toXml($data), 'https://api.mch.weixin.qq.com/pay/unifiedorder');
         $responseData = $this->parseResponseResult($response);
