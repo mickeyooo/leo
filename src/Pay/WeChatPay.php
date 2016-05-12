@@ -9,7 +9,7 @@ class WeChatPay extends PayAbstract
     protected $app_id;
     protected $app_key;
     protected $mch_id;
-    protected $sub_mch_id;
+    protected $sub_mch_id = '';
     protected $sub_appid = '';
     protected $cert_file_path;
     protected $key_file_path;
