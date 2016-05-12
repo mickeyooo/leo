@@ -33,8 +33,6 @@ class WeChatPay extends PayAbstract
      */
     public function __construct(array $config)
     {
-
-
         if (!isset($config['app_id']) || !isset($config['mch_id']) || !isset($config['app_key'])) {
             throw new ArgumentException("Invalid config array.");
         }
@@ -42,9 +40,9 @@ class WeChatPay extends PayAbstract
         $this->app_id = $config['app_id'];
         $this->app_key = $config['app_key'];
         $this->mch_id = $config['mch_id'];
-        $this->sub_mch_id = $config['sub_mch_id'];
 
-        isset($config['sub_appid']) && $this->sub_appid = $config['sub_appid'];
+        isset($config['sub_mch_id']) && $config['sub_mch_id'] && $this->sub_mch_id = $config['sub_mch_id'];
+        isset($config['sub_appid']) && $config['sub_appid'] && $this->sub_appid = $config['sub_appid'];
 
         $this->cert_file_path = isset($config['cert_file_path']) ? $config['cert_file_path'] : null;
         $this->key_file_path = isset($config['key_file_path']) ? $config['key_file_path'] : null;
