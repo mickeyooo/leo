@@ -18,4 +18,22 @@ abstract class PayAbstract
         return urldecode(http_build_query($queryParams));
     }
 
+    /**
+     * 生成nonce
+     *
+     * @param int $length
+     *
+     * @return string
+     */
+    protected function buildNonce($length = 8)
+    {
+        $nonce = '';
+
+        for ($i = 0; $i < $length; $i++) {
+            $nonce .= chr(mt_rand(1, 100) % 2 ? mt_rand(65, 90) : mt_rand(97, 122));
+        }
+
+        return $nonce;
+    }
+
 }

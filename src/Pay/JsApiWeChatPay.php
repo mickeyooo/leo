@@ -10,13 +10,14 @@ class JsApiWeChatPay extends WeChatPay implements PayInterface
      * @param array $config
      *
      * <code>
-     *      $config = [
-     *          "app_id" => "wxd930ea5d5a258f4f",
-     *          "partner_id" => "1900000109",
-     *          "app_key" => "192006250b4c09247ec02edce69f6a2d",
-     *          "cert_file_path" => "/tmp/apiclient_cert.pem",
-     *          "key_file_path" => "/tmp/apiclient_key.pem"
-     *      ]
+     * $config = [
+     *       "app_id"         => "wxd930ea5d5a258f4f",
+     *       "mch_id"         => "1301449201",
+     *       "sub_mch_id"     => "1315302001",
+     *       "cert_file_path" => "/tmp/apiclient_cert.pem",
+     *       "key_file_path"  => "/tmp/apiclient_key.pem"
+     *   ];
+     * </code>
      * </code>
      *
      * @throws \Exception
@@ -35,20 +36,20 @@ class JsApiWeChatPay extends WeChatPay implements PayInterface
      * @param int    $fee               订单总金额，单位为分
      * @param string $notifyAbsoluteUrl 接收微信支付异步通知回调地址
      * @param string $ip                用户端ip
-     * @param int    $timeExpire        支付超时时间
+     * @param int    $timeExpire        支付超时(minutes)
      * @param string $openId            微信openid
+     *                                  int
      *
      * @return array
      * @throws \Exception
      */
-    public function buildOrder($payOrderId, $body, $fee, $notifyAbsoluteUrl, $ip, $timeExpire, $openId = '')
+    public function buildOrder($payOrderId, $body, $fee, $notifyAbsoluteUrl, $ip, $timeExpire = 30, $openId = '')
     {
-        $timeExpire = $timeExpire && $timeExpire > 5 ? time() + $timeExpire * 60 : time() + 900;
         $data = [
             'appid'            => $this->app_id,
             'mch_id'           => $this->mch_id,
             'sub_mch_id'       => $this->sub_mch_id,
-            'nonce_str'        => '',
+            'nonce_str'        => $this->buildNonce(16),
             'body'             => $body,
             'out_trade_no'     => $payOrderId,
             'total_fee'        => (int)$fee,
@@ -56,7 +57,7 @@ class JsApiWeChatPay extends WeChatPay implements PayInterface
             'notify_url'       => $notifyAbsoluteUrl,
             'trade_type'       => 'JSAPI',
             'openid'           => $openId ?: '',
-            'time_expire'      => formatDate('YmdHis', $timeExpire)
+            'time_expire'      => date('YmdHis', time() + (int)$timeExpire)
         ];
         $data['sign'] = $this->getSign($data);
         $response = $this->post($this->toXml($data), 'https://api.mch.weixin.qq.com/pay/unifiedorder');

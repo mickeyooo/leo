@@ -13,23 +13,26 @@ class WeChatPay extends PayAbstract
     protected $cert_file_path;
     protected $key_file_path;
 
+
     /**
      * @param array $config
      *
      * <code>
      * $config = [
-     *     "app_id" => "wxd930ea5d5a258f4f",
-     *     "mch_id" => "1301449201",
-     *     "sub_mch_id" => "1315302001",
-     *     "cert_file_path" => "/tmp/apiclient_cert.pem",
-     *     "key_file_path" => "/tmp/apiclient_key.pem"
-     *      ]
+     *       "app_id"         => "wxd930ea5d5a258f4f",
+     *       "mch_id"         => "1301449201",
+     *       "sub_mch_id"     => "1315302001",
+     *       "cert_file_path" => "/tmp/apiclient_cert.pem",
+     *       "key_file_path"  => "/tmp/apiclient_key.pem"
+     *   ];
      * </code>
      *
      * @throws ArgumentException
      */
     public function __construct(array $config)
     {
+        
+
         if (!isset($config['app_id']) || !isset($config['mch_id']) || !isset($config['sub_mch_id'])) {
             throw new ArgumentException("Invalid config array.");
         }

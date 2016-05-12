@@ -10,14 +10,14 @@ class AppWeChatPay extends WeChatPay implements PayInterface
      * @param array $config
      *
      * <code>
-     *      $config = [
-     *          "app_id" => "wxd930ea5d5a258f4f",
-     *          "partner_id" => "1900000109",
-     *          "app_key" => "192006250b4c09247ec02edce69f6a2d",
-     *          "cert_file_path" => "/tmp/apiclient_cert.pem",
-     *          "key_file_path" => "/tmp/apiclient_key.pem"
-     *      ]
-     *  </code>
+     * $config = [
+     *       "app_id"         => "wxd930ea5d5a258f4f",
+     *       "mch_id"         => "1301449201",
+     *       "sub_mch_id"     => "1315302001",
+     *       "cert_file_path" => "/tmp/apiclient_cert.pem",
+     *       "key_file_path"  => "/tmp/apiclient_key.pem"
+     *   ];
+     * </code>
      *
      * @throws \Exception
      */
@@ -30,12 +30,12 @@ class AppWeChatPay extends WeChatPay implements PayInterface
      *  创建订单
      * @link https://pay.weixin.qq.com/wiki/doc/api/app.php?chapter=9_1
      *
-     * @param string $payOrderId 订单号
-     * @param string $body 商品或支付单简要描述
-     * @param int $fee 订单总金额，单位为分
+     * @param string $payOrderId        订单号
+     * @param string $body              商品或支付单简要描述
+     * @param int    $fee               订单总金额，单位为分
      * @param string $notifyAbsoluteUrl 接收微信支付异步通知回调地址
-     * @param string $ip 用户端ip
-     * @param int $timeExpire
+     * @param string $ip                用户端ip
+     * @param int    $timeExpire
      *
      * @return array
      * @throws \Exception
