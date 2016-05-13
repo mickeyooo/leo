@@ -173,6 +173,24 @@ class BCGDrawing {
             $drawer = new BCGDrawPNG($im);
             $drawer->setFilename($this->filename);
             $drawer->setDPI($this->dpi);
+
+            $size = $this->barcode->getDimension(0, 0);
+            $this->w = max(1, $size[0]);
+            $this->h = max(1, $size[1]);
+            $this->init();
+            $this->barcode->draw($this->im);
+
+            header('Content-Type: image/png');
+            imagepng($this->im);
+
+            ob_start();
+            imagepng($this->im);
+            $bin = ob_get_contents();
+            ob_end_clean();
+
+            dump($bin);
+            die;
+
         } elseif ($image_style === self::IMG_FORMAT_JPEG) {
             $drawer = new BCGDrawJPG($im);
             $drawer->setFilename($this->filename);
