@@ -1434,6 +1434,13 @@ class BarCode128
 		$this->set  = $set;
 		$this->vals = $vals;
 	}
+
+	public function addFontSize($fontSize)
+	{
+		$font = __DIR__."/../data/HansKendrick-Regular.ttf";
+
+		$this->addFont($font, $fontSize);
+	}
 }
 
 ?>
