@@ -8,7 +8,6 @@
     ],
 
     "autoload": {
-        "classmap": ["barcodegen/"],
         "files": [
             "files/wechat.class.php",
             "BarCode128/src/Barcode128.class.php"
