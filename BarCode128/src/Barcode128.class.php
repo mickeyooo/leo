@@ -209,8 +209,8 @@ class BarCode128
 		$this->allocateColors();
 		imagefill($this->image, 0, 0, $this->white);
 
-		if ($this->BorderWidth() > 0)
-			$this->drawBorder();
+		// if ($this->BorderWidth() > 0)
+		//    $this->drawBorder();
 
 		if (!empty($this->text))
 			$this->drawText();
