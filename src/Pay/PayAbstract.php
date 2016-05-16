@@ -25,7 +25,7 @@ abstract class PayAbstract
      *
      * @return string
      */
-    protected function buildNonce($length = 8)
+    public function buildNonce($length = 8)
     {
         $nonce = '';
 
