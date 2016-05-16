@@ -1,5 +1,6 @@
 <?php
 namespace Leo\Pay;
+use Leo\Pay\Exception\ArgumentException;
 
 /**
  *  微信JS支付
@@ -81,20 +82,20 @@ class JsApiWeChatPay extends WeChatPay implements PayInterface
     private function _buildPrepayQueryParameters($prepayId)
     {
         if (!$prepayId) {
-            throw new \Exception("Invalid prepayId.");
+            throw new ArgumentException("prepayId is not null or empty.");
         }
 
         $data = [
             "appId"     => $this->app_id,
             "timeStamp" => time(),
             "nonceStr"  => $this->buildNonce(16),
+            "prepay_id" => $prepayId,
             "package"   => "prepay_id=$prepayId",
             "signType"  => "MD5"
         ];
         $data["paySign"] = $this->getSign($data);
         $data['timestamp'] = $data['timeStamp'];
         unset($data['timeStamp']);
-        unset($data['appId']);
 
         return $data;
     }
