@@ -189,6 +189,30 @@ class WeChatPay extends PayAbstract
     }
 
     /**
+     * 输出对象或 xml
+     *
+     * @param string $xml
+     * @param bool   $toArray
+     * @param string $className 返回对象名
+     *
+     * @return mixed
+     */
+    public static function fromXml($xml, $toArray = true, $className = 'SimpleXMLElement')
+    {
+        if (!$xml) {
+            throw new ArgumentException("xml is not null or empty.");
+        }
+
+        $data = simplexml_load_string($xml, $className, LIBXML_NOCDATA);
+
+        if ($toArray) {
+            $data = json_decode(json_encode($data), true);
+        }
+
+        return $data;
+    }
+
+    /**
      * 数据提交
      *
      * @param      $xml
