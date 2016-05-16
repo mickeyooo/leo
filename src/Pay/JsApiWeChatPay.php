@@ -61,7 +61,7 @@ class JsApiWeChatPay extends WeChatPay implements PayInterface
         ];
         $this->sub_mch_id && $data['sub_mch_id'] = $this->sub_mch_id;
         $data['sign'] = $this->getSign($data);
-        $response = $this->post($this->toXml($data), 'https://api.mch.weixin.qq.com/pay/unifiedorder');
+        $response = $this->post(self::toXml($data), 'https://api.mch.weixin.qq.com/pay/unifiedorder');
         $responseData = $this->parseResponseResult($response);
 
         return [

@@ -82,7 +82,7 @@ class WeChatPay extends PayAbstract
             "transaction_id" => $transactionId,
         ];
         $data['sign'] = $this->getSign($data);
-        $response = $this->post($this->toXml($data), 'https://api.mch.weixin.qq.com/secapi/pay/refund', true);
+        $response = $this->post(self::toXml($data), 'https://api.mch.weixin.qq.com/secapi/pay/refund', true);
 
         $this->parseResponseResult($response);
 
@@ -173,7 +173,7 @@ class WeChatPay extends PayAbstract
      *
      * @return xml
      **/
-    protected function toXml(array $data)
+    public static function toXml(array $data)
     {
         $xml = "<xml>";
         foreach ($data as $key => $val) {
