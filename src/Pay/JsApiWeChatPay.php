@@ -51,7 +51,7 @@ class JsApiWeChatPay extends WeChatPay implements PayInterface
         $data = [
             'appid'            => $this->app_id,
             'mch_id'           => $this->mch_id,
-            'nonce_str'        => $this->buildNonce(16),
+            'nonce_str'        => self::buildNonce(16),
             'body'             => $body,
             'out_trade_no'     => $payOrderId,
             'total_fee'        => (int)$fee,
@@ -89,7 +89,7 @@ class JsApiWeChatPay extends WeChatPay implements PayInterface
         $data = [
             "appId"     => $this->app_id,
             "timeStamp" => time(),
-            "nonceStr"  => $this->buildNonce(16),
+            "nonceStr"  => self::buildNonce(16),
             "package"   => "prepay_id=$prepayId",
             "signType"  => "MD5"
         ];
