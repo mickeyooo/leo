@@ -24,6 +24,7 @@ class WeChatPay extends PayAbstract
      *       "app_key"        => "192006250b4c09247ec02edce69f6a2d",
      *       "mch_id"         => "1301449201",
      *       "sub_mch_id"     => "1315302001",
+     *       "sub_appid"      => "wxdbea18369d5d3547",
      *       "cert_file_path" => "/tmp/apiclient_cert.pem",
      *       "key_file_path"  => "/tmp/apiclient_key.pem"
      *   ];

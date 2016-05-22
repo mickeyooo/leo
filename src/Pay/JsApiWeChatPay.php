@@ -9,21 +9,7 @@ use Leo\Pay\Exception\ArgumentException;
 class JsApiWeChatPay extends WeChatPay implements PayInterface
 {
     /**
-     * @param array $config
-     *
-     * <code>
-     * $config = [
-     *       "app_id"         => "wxd930ea5d5a258f4f",
-     *       "app_key"        => "192006250b4c09247ec02edce69f6a2d",
-     *       "mch_id"         => "1301449201",
-     *       "sub_mch_id"     => "1315302001",
-     *       "cert_file_path" => "/tmp/apiclient_cert.pem",
-     *       "key_file_path"  => "/tmp/apiclient_key.pem"
-     *   ];
-     * </code>
-     * </code>
-     *
-     * @throws \Exception
+     * {@inheritdoc}
      */
     public function __construct(array $config)
     {
