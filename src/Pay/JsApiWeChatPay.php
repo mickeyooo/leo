@@ -32,6 +32,7 @@ class JsApiWeChatPay extends WeChatPay implements PayInterface
 
     /**
      * 创建订单
+     *
      * @link https://pay.weixin.qq.com/wiki/doc/api/jsapi_sl.php?chapter=9_1
      *
      * @param string $payOrderId        订单号
@@ -41,12 +42,13 @@ class JsApiWeChatPay extends WeChatPay implements PayInterface
      * @param string $openId            微信openid
      * @param string $ip                用户端ip
      * @param int    $timeExpire        支付超时(minutes)
-     * @param string $openId            微信openid
+     * @param array  $options           其它可选支付参数
      *
      * @return array
      * @throws \Exception
      */
-    public function buildOrder($payOrderId, $body, $fee, $notifyAbsoluteUrl, $openId, $ip, $timeExpire = 30)
+    public function buildOrder($payOrderId, $body, $fee, $notifyAbsoluteUrl, $openId, $ip,
+                               $timeExpire = 30, array $options = [])
     {
         $data = [
             'appid'            => $this->app_id,
@@ -62,6 +64,8 @@ class JsApiWeChatPay extends WeChatPay implements PayInterface
             'time_expire'      => date('YmdHis', time() + (int)$timeExpire)
         ];
         $this->sub_mch_id && $data['sub_mch_id'] = $this->sub_mch_id;
+        $this->sub_appid && $data['sub_appid'] = $this->sub_appid;
+        $options && $data = array_merge($data, $options);
         $data['sign'] = $this->getSign($data);
         $response = $this->post(self::toXml($data), 'https://api.mch.weixin.qq.com/pay/unifiedorder');
         $responseData = $this->parseResponseResult(self::fromXml($response));
