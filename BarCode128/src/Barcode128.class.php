@@ -1437,7 +1437,7 @@ class BarCode128
 
 	public function addFontSize($fontSize)
 	{
-		$font = __DIR__."/../data/HansKendrick-Regular.ttf";
+		$font = __DIR__."/../data/msyh.ttf";
 
 		$this->addFont($font, $fontSize);
 	}
