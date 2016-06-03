@@ -442,7 +442,7 @@ class BarCode128
 	 */
 	public function ShowCode($flag = null)
 	{
-		if ($flag == null)
+		if ($flag === null)
 			return $this->flags['showCode'];
 		
 		if (!is_bool($flag))
