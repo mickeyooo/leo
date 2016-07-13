@@ -10,6 +10,7 @@
     "autoload": {
         "files": [
             "files/wechat.class.php",
+            "files/WeiXin.php",
             "BarCode128/src/Barcode128.class.php"
         ],
         "psr-4": {
