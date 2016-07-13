@@ -204,10 +204,10 @@ abstract class WeiXin
         $response = curl_exec($ch);
         $status   = curl_getinfo($ch);
 
-        if (intval($status['http_code'] != 200)) {
+        if (intval($status['http_code']) != 200) {
             $error = curl_error($ch);
             curl_close($ch);
-            
+
             throw new \Exception($error);
         }
 
