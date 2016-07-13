@@ -186,9 +186,9 @@ abstract class WeiXin
         return isset($data['errcode']) && $data['errcode'] == 0 ? true : false;
     }
 
-    abstract function setCache($key, $value, $expired);
+    protected abstract function setCache($key, $value, $expired);
 
-    abstract function getCache($key);
+    protected abstract function getCache($key);
 
     protected function post($url, $data)
     {
