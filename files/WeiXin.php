@@ -18,8 +18,8 @@ abstract class WeiXin
     const GET_AUTHORIZER_OPTION = "/api_get_authorizer_option?component_access_token=%s";
     const SET_AUTHORIZER_OPTION = "/api_set_authorizer_option?component_access_token=%s";
 
-    private $appId;
-    private $appSecret;
+    protected $appId;
+    protected $appSecret;
 
     public function __construct($appId, $appSecret)
     {
