@@ -13,7 +13,6 @@
             "files/WeiXin.php",
             "BarCode128/src/Barcode128.class.php"
         ],
-        "classmap": ["files/weixin/"],
         "psr-4": {
             "Leo\\": "src/"
         }
