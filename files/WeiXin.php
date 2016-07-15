@@ -127,17 +127,20 @@ abstract class WeiXin
      * @param $authorizerAppId
      *
      * @return array
+     *
+     * @throws \Exception
      */
     public function getAuthorizerInfo($authorizerAppId)
     {
-        $data = [
-            "component_appid"  => $this->appId,
-            "authorizer_appid" => $authorizerAppId
-        ];
-
-        return json_decode($this->post(
+        $data = json_decode($this->post(
             sprintf(self::AUTHORIZER_INFO, $this->getComponentAccessToken()),
-            $data), true);
+            ["component_appid" => $this->appId, "authorizer_appid" => $authorizerAppId]), true);
+
+        if (isset($data['errcode'])) {
+            throw new \Exception($data['errmsg'], $data['errcode']);
+        }
+
+        return $data['authorizer_info'];
     }
 
     /**
