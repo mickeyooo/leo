@@ -7,7 +7,7 @@
  */
 abstract class WeiXin
 {
-    const VERIFY_TICKET_KEY = "weixin:verify:ticket";
+    const VERIFY_TICKET_KEY = "wx:verify:ticket:%s";
     const COMPONENT_ACCESS_TOKEN_KEY = "wx:component:access:token:%s";
 
     const COMPONENT_ACCESS_TOKEN = "/api_component_token";
@@ -29,12 +29,12 @@ abstract class WeiXin
 
     public function setVerifyTicket($verifyTicket)
     {
-        return $this->setCache(self::VERIFY_TICKET_KEY, $verifyTicket, 900);
+        return $this->setCache(sprintf(self::VERIFY_TICKET_KEY, $this->appId), $verifyTicket, 900);
     }
 
     protected function getVerifyTicket()
     {
-        return $this->getCache(self::VERIFY_TICKET_KEY);
+        return $this->getCache(sprintf(self::VERIFY_TICKET_KEY, $this->appId));
     }
 
     /**
