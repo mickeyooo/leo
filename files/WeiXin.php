@@ -78,7 +78,7 @@ abstract class WeiXin
     {
         $data = json_decode($this->post(
             sprintf(self::PRE_AUTH_CODE, $this->getComponentAccessToken()),
-            ["component_appid" => $this->appId]));
+            ["component_appid" => $this->appId]), true);
 
         return isset($data['pre_auth_code']) ? $data['pre_auth_code'] : "";
     }
