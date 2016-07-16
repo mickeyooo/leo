@@ -7,8 +7,10 @@
  */
 abstract class WeiXin
 {
-    const VERIFY_TICKET_KEY = "wx:verify:ticket:%s";
+    const COMPONENT_VERIFY_TICKET_KEY = "wx:component:verify:ticket:%s";
     const COMPONENT_ACCESS_TOKEN_KEY = "wx:component:access:token:%s";
+    const AUTHORIZER_REFRESH_TOKEN_KEY = 'wx:authorizer:refresh:token:%s';
+    const AUTHORIZER_ACCESS_TOKEN_KEY = 'wx:authorizer:access:token:%s';
 
     const COMPONENT_ACCESS_TOKEN = "/api_component_token";
     const PRE_AUTH_CODE = "/api_create_preauthcode?component_access_token=%s";
@@ -27,14 +29,88 @@ abstract class WeiXin
         $this->appSecret = $appSecret;
     }
 
-    public function setVerifyTicket($verifyTicket)
+    public function setComponentVerifyTicket($componentVerifyTicket)
     {
-        return $this->setCache(sprintf(self::VERIFY_TICKET_KEY, $this->appId), $verifyTicket, 900);
+        return $this->setCache(
+            sprintf(self::COMPONENT_VERIFY_TICKET_KEY, $this->appId),
+            $componentVerifyTicket
+        );
     }
 
-    protected function getVerifyTicket()
+    protected function getComponentVerifyTicket()
     {
-        return $this->getCache(sprintf(self::VERIFY_TICKET_KEY, $this->appId));
+        return $this->getCache(sprintf(self::COMPONENT_VERIFY_TICKET_KEY, $this->appId));
+    }
+
+    protected function setAuthorizerRefreshToken($authorizerAppId, $authorizerRefreshToken)
+    {
+        return $this->setCache(
+            sprintf(self::AUTHORIZER_REFRESH_TOKEN_KEY, $authorizerAppId),
+            $authorizerRefreshToken
+        );
+    }
+
+    protected function getAuthorizerRefreshToken($authorizerAppId)
+    {
+        $token = $this->getCache(sprintf(self::AUTHORIZER_REFRESH_TOKEN_KEY, $authorizerAppId));
+
+        return $token;
+    }
+
+    protected function setAuthorizerAccessToken($authorizerAppId, $authorizerAccessToken, $expired = 3600)
+    {
+        return $this->setCache(
+            sprintf(self::AUTHORIZER_ACCESS_TOKEN_KEY, $authorizerAppId),
+            $authorizerAccessToken,
+            $expired
+        );
+    }
+
+    protected function refreshAuthorizerAccessToken($authorizerAppId)
+    {
+        $data = [
+            "component_appid"          => $this->appId,
+            "authorizer_appid"         => $authorizerAppId,
+            "authorizer_refresh_token" => $this->getAuthorizerRefreshToken($authorizerAppId)
+        ];
+
+        return json_decode(
+            $this->post(
+                sprintf(self::AUTHORIZER_ACCESS_TOKEN, $this->getComponentAccessToken()),
+                $data),
+            true
+        );
+    }
+
+    /**
+     * 获取授权方访问 token
+     *
+     * @param string $authorizerAppId
+     *
+     * @return string
+     * @throws \Exception
+     */
+    public function getAuthorizerAccessToken($authorizerAppId)
+    {
+        $token = $this->getCache(sprintf(self::AUTHORIZER_ACCESS_TOKEN_KEY, $authorizerAppId));
+
+        if ($token) {
+            return $token;
+        }
+
+        $data = $this->refreshAuthorizerAccessToken($authorizerAppId);
+
+        if (isset($data['errcode'])) {
+            throw new \Exception($data['errmsg'], $data['errcode']);
+        }
+
+        $this->setAuthorizerAccessToken(
+            $authorizerAppId,
+            $data['authorizer_access_token'],
+            isset($data['expires_in']) ? intval($data['expires_in']) - 100 : 3600
+        );
+
+        return $data['authorizer_access_token'];
     }
 
     /**
@@ -55,7 +131,7 @@ abstract class WeiXin
         $params = [
             "component_appid"         => $this->appId,
             "component_appsecret"     => $this->appSecret,
-            "component_verify_ticket" => $this->getVerifyTicket()
+            "component_verify_ticket" => $this->getComponentVerifyTicket()
         ];
         $data   = json_decode($this->post(self::COMPONENT_ACCESS_TOKEN, $params), true);
 
@@ -76,9 +152,12 @@ abstract class WeiXin
      */
     public function getPreAuthCode()
     {
-        $data = json_decode($this->post(
-            sprintf(self::PRE_AUTH_CODE, $this->getComponentAccessToken()),
-            ["component_appid" => $this->appId]), true);
+        $data = json_decode(
+            $this->post(
+                sprintf(self::PRE_AUTH_CODE, $this->getComponentAccessToken()),
+                ["component_appid" => $this->appId]),
+            true
+        );
 
         return isset($data['pre_auth_code']) ? $data['pre_auth_code'] : "";
     }
@@ -89,6 +168,7 @@ abstract class WeiXin
      * @param $authorizationCode 授权code,会在授权成功时返回给第三方平台，详见第三方平台授权流程说明
      *
      * @return array
+     * @throws \Exception
      */
     public function getAuthorizationInfo($authorizationCode)
     {
@@ -96,29 +176,26 @@ abstract class WeiXin
             "component_appid"    => $this->appId,
             "authorization_code" => $authorizationCode
         ];
+        $data = json_decode(
+            $this->post(sprintf(self::AUTHORIZATION_INFO, $this->getComponentAccessToken()), $data),
+            true
+        );
 
-        return json_decode($this->post(sprintf(self::AUTHORIZATION_INFO, $this->getComponentAccessToken()), $data), true);
-    }
+        if (!is_array($data) || !isset($data['authorization_info'])) {
+            throw new \Exception("使用授权码换取公众号的接口调用凭据和授权信息失败");
+        }
 
-    /**
-     * 获取（刷新）授权公众号的接口调用凭据（令牌）
-     *
-     * @param $authorizerAppId
-     * @param $refreshToken
-     *
-     * @return array
-     */
-    public function refreshAuthorizerAccessToken($authorizerAppId, $refreshToken)
-    {
-        $data = [
-            "component_appid"          => $this->appId,
-            "authorizer_appid"         => $authorizerAppId,
-            "authorizer_refresh_token" => $refreshToken
-        ];
+        $this->setAuthorizerRefreshToken(
+            $data['authorization_info']['authorizer_appid'],
+            $data['authorization_info']['authorizer_refresh_token']
+        );
+        $this->setAuthorizerAccessToken(
+            $data['authorization_info']['authorizer_appid'],
+            $data['authorization_info']['authorizer_access_token'],
+            $data['authorization_info']['expires_in'] ? intval($data['authorization_info']['expires_in']) - 100 : 3600
+        );
 
-        return json_decode($this->post(
-            sprintf(self::AUTHORIZER_ACCESS_TOKEN, $this->getComponentAccessToken()),
-            $data), true);
+        return $data['authorization_info'];
     }
 
     /**
@@ -132,9 +209,12 @@ abstract class WeiXin
      */
     public function getAuthorizerInfo($authorizerAppId)
     {
-        $data = json_decode($this->post(
-            sprintf(self::AUTHORIZER_INFO, $this->getComponentAccessToken()),
-            ["component_appid" => $this->appId, "authorizer_appid" => $authorizerAppId]), true);
+        $data = json_decode(
+            $this->post(
+                sprintf(self::AUTHORIZER_INFO, $this->getComponentAccessToken()),
+                ["component_appid" => $this->appId, "authorizer_appid" => $authorizerAppId]),
+            true
+        );
 
         if (isset($data['errcode'])) {
             throw new \Exception($data['errmsg'], $data['errcode']);
@@ -182,14 +262,17 @@ abstract class WeiXin
             "option_value"     => $value
         ];
 
-        $data = json_decode($this->post(
-            sprintf(self::SET_AUTHORIZER_OPTION, $this->getComponentAccessToken()),
-            $data), true);
+        $data = json_decode(
+            $this->post(
+                sprintf(self::SET_AUTHORIZER_OPTION, $this->getComponentAccessToken()),
+                $data),
+            true
+        );
 
         return isset($data['errcode']) && $data['errcode'] == 0 ? true : false;
     }
 
-    protected abstract function setCache($key, $value, $expired);
+    protected abstract function setCache($key, $value, $expired = null);
 
     protected abstract function getCache($key);
 
