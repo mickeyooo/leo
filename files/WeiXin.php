@@ -50,7 +50,7 @@ abstract class WeiXin
         );
     }
 
-    protected function getAuthorizerRefreshToken($authorizerAppId)
+    public function getAuthorizerRefreshToken($authorizerAppId)
     {
         $token = $this->getCache(sprintf(self::AUTHORIZER_REFRESH_TOKEN_KEY, $authorizerAppId));
 
