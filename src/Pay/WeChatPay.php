@@ -38,15 +38,15 @@ class WeChatPay extends PayAbstract
             throw new ArgumentException("Invalid config array.");
         }
 
-        $this->app_id = $config['app_id'];
+        $this->app_id  = $config['app_id'];
         $this->app_key = $config['app_key'];
-        $this->mch_id = $config['mch_id'];
+        $this->mch_id  = $config['mch_id'];
 
         isset($config['sub_mch_id']) && $config['sub_mch_id'] && $this->sub_mch_id = $config['sub_mch_id'];
         isset($config['sub_appid']) && $config['sub_appid'] && $this->sub_appid = $config['sub_appid'];
 
         $this->cert_file_path = isset($config['cert_file_path']) ? $config['cert_file_path'] : null;
-        $this->key_file_path = isset($config['key_file_path']) ? $config['key_file_path'] : null;
+        $this->key_file_path  = isset($config['key_file_path']) ? $config['key_file_path'] : null;
     }
 
     /**
@@ -71,7 +71,7 @@ class WeChatPay extends PayAbstract
             throw new ArgumentException("密钥文件 {$this->key_file_path} 不存在");
         }
 
-        $data = [
+        $data         = [
             "appid"          => $this->_app_id,
             "mch_id"         => $this->_partner_id,
             "op_user_id"     => $this->_partner_id,
@@ -83,7 +83,7 @@ class WeChatPay extends PayAbstract
             "transaction_id" => $transactionId,
         ];
         $data['sign'] = $this->getSign($data);
-        $response = $this->post(self::toXml($data), 'https://api.mch.weixin.qq.com/secapi/pay/refund', true);
+        $response     = $this->post(self::toXml($data), 'https://api.mch.weixin.qq.com/secapi/pay/refund', true);
 
         $this->parseResponseResult($response);
 
@@ -150,21 +150,16 @@ class WeChatPay extends PayAbstract
 
     protected function parseResponseResult($data)
     {
-        if (!$data || !isset($data['return_code'])) {
+        if (!$data || !isset($data['return_code']))
             throw new ArgumentException("参数无效");
-        }
+        if ($data['return_code'] !== 'SUCCESS')
+            throw new ArgumentException($data['return_msg']);
+        if ($data['result_code'] !== 'SUCCESS')
+            throw new ArgumentException($data['err_code_des']);
+        if (isset($data['err_code']))
+            throw new ArgumentException($data['err_code_des']);
 
-        if ($data['return_code'] == 'SUCCESS') {
-            if ($data['result_code'] == 'SUCCESS') {
-                return $data;
-            } else {
-                $exceptionMessage = $data['err_code'];
-            }
-        } else {
-            $exceptionMessage = $data['return_msg'];
-        }
-
-        throw new ArgumentException($exceptionMessage);
+        return $data;
     }
 
     /**
@@ -250,6 +245,7 @@ class WeChatPay extends PayAbstract
 
         if ($data = curl_exec($ch)) {
             curl_close($ch);
+            error_log($data, 3, dirname(__DIR__) . "/var/log/pay_" . date('Ymd') . ".log");
 
             return $data;
         } else {
