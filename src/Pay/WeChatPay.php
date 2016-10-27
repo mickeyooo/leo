@@ -245,7 +245,7 @@ class WeChatPay extends PayAbstract
 
         if ($data = curl_exec($ch)) {
             curl_close($ch);
-            error_log($data, 3, dirname(__DIR__) . "/var/log/pay_" . date('Ymd') . ".log");
+            error_log($data, 3, "../var/logs/pay_" . date('Ymd') . ".log");
 
             return $data;
         } else {
