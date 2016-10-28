@@ -157,7 +157,7 @@ class WeChatPay extends PayAbstract
         if ($data['result_code'] !== 'SUCCESS')
             throw new ArgumentException($data['err_code_des']);
         if (isset($data['err_code']))
-            throw new ArgumentException($data['err_code_des']);
+            throw new ArgumentException($data['err_code']);
         if (!$this->verifyData($data))
             throw  new ArgumentException("签名无效");
 
