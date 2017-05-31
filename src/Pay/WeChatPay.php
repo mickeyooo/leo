@@ -53,7 +53,8 @@ class WeChatPay extends PayAbstract
      * 退款
      * @link  https://pay.weixin.qq.com/wiki/doc/api/jsapi_sl.php?chapter=9_4
      *
-     * @param string $payOrderId    支付id
+     * @param string $payNumber     支付单号
+     * @param string $refundNumber  退款单号
      * @param int    $refundFee     退款总金额
      * @param int    $totalFee      订单总金额，单位为分
      * @param string $transactionId 微信生成的订单号，在支付通知中有返回
@@ -62,7 +63,7 @@ class WeChatPay extends PayAbstract
      *
      * @throw \Exception
      */
-    public function refund($payOrderId, $refundFee, $totalFee, $transactionId)
+    public function refund($payNumber, $refundNumber, $refundFee, $totalFee, $transactionId)
     {
         if (!($this->cert_file_path && is_file($this->cert_file_path))) {
             throw new ArgumentException("证书文件 {$this->cert_file_path} 不存在");
@@ -71,17 +72,18 @@ class WeChatPay extends PayAbstract
             throw new ArgumentException("密钥文件 {$this->key_file_path} 不存在");
         }
 
-        $data         = [
-            "appid"          => $this->_app_id,
-            "mch_id"         => $this->_partner_id,
-            "op_user_id"     => $this->_partner_id,
-            "nonce_str"      => '',
-            "out_refund_no"  => $payOrderId,
-            "out_trade_no"   => $payOrderId,
+        $data = [
+            "appid"          => $this->app_id,
+            "mch_id"         => $this->mch_id,
+            "nonce_str"      => self::buildNonce(16),
+            "out_refund_no"  => $refundNumber,
+            "out_trade_no"   => $payNumber,
             "refund_fee"     => $refundFee,
             "total_fee"      => $totalFee,
             "transaction_id" => $transactionId,
         ];
+        isset($config['sub_mch_id']) && $config['sub_mch_id'] && $this->sub_mch_id = $config['sub_mch_id'];
+        isset($config['sub_appid']) && $config['sub_appid'] && $this->sub_appid = $config['sub_appid'];
         $data['sign'] = $this->getSign($data);
         $response     = $this->post(self::toXml($data), 'https://api.mch.weixin.qq.com/secapi/pay/refund', true);
 
