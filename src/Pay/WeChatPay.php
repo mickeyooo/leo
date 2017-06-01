@@ -95,17 +95,23 @@ class WeChatPay extends PayAbstract
      * 退款查询
      * @link https://pay.weixin.qq.com/wiki/doc/api/jsapi_sl.php?chapter=9_5
      *
-     * @param string $refundNumber 退款单号
+     * @param string $refundNumber  退款单号
+     * @param string $transactionId 微信订单号
+     * @param string $payNumber     商户订单号
+     * @param string $refundId      微信退款单号
      *
      * @return array
      */
-    public function refundQuery($refundNumber)
+    public function refundQuery($refundNumber, $transactionId = '', $payNumber = '', $refundId = '')
     {
         $data = [
-            'appid'         => $this->app_id,
-            'mch_id'        => $this->mch_id,
-            'noce_str'      => self::buildNonce(16),
-            'out_refund_no' => $refundNumber
+            'appid'          => $this->app_id,
+            'mch_id'         => $this->mch_id,
+            'noce_str'       => self::buildNonce(16),
+            'out_refund_no'  => $refundNumber,
+            'transaction_id' => $transactionId,
+            'out_trade_no'   => $payNumber,
+            'refund_id'      => $refundId
         ];
         $this->sub_mch_id && $data['sub_mch_id'] = $this->sub_mch_id;
         $this->sub_appid && $data['sub_appid'] = $this->sub_appid;
@@ -175,7 +181,7 @@ class WeChatPay extends PayAbstract
 
     protected function parseResponseResult($data)
     {
-        if(!isset($data['return_code']) || $data['result_code'] != 'SUCCESS')
+        if (!isset($data['return_code']) || $data['result_code'] != 'SUCCESS')
             throw new ArgumentException($data['err_code_des'] ?: $data['return_msg']);
 
         if ($data['result_code'] != 'SUCCESS')
