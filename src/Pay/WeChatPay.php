@@ -93,6 +93,30 @@ class WeChatPay extends PayAbstract
     }
 
     /**
+     * 退款查询
+     * @link https://pay.weixin.qq.com/wiki/doc/api/jsapi_sl.php?chapter=9_5
+     *
+     * @param string $refundNumber 退款单号
+     *
+     * @return array
+     */
+    public function refundQuery($refundNumber)
+    {
+        $data = [
+            'appid'         => $this->app_id,
+            'mch_id'        => $this->mch_id,
+            'noce_str'      => self::buildNonce(16),
+            'out_refund_no' => $refundNumber
+        ];
+        isset($config['sub_mch_id']) && $config['sub_mch_id'] && $this->sub_mch_id = $config['sub_mch_id'];
+        isset($config['sub_appid']) && $config['sub_appid'] && $this->sub_appid = $config['sub_appid'];
+        $data['sign'] = $this->getSign($data);
+        $response     = $this->post(self::toXml($data), 'https://api.mch.weixin.qq.com/pay/refundquery');
+
+        return $this->parseResponseResult($response);
+    }
+
+    /**
      * 获取请求参数签名
      *
      * @link https://pay.weixin.qq.com/wiki/doc/api/app.php?chapter=4_3
