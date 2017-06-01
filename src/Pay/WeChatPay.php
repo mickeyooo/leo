@@ -88,7 +88,7 @@ class WeChatPay extends PayAbstract
         $data['sign'] = $this->getSign($data);
         $response     = $this->post(self::toXml($data), 'https://api.mch.weixin.qq.com/secapi/pay/refund', true);
 
-        $this->parseResponseResult($response);
+        $this->parseResponseResult(self::fromXml($response));
 
         return true;
     }
