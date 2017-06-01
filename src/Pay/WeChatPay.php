@@ -107,7 +107,7 @@ class WeChatPay extends PayAbstract
         $data = [
             'appid'          => $this->app_id,
             'mch_id'         => $this->mch_id,
-            'noce_str'       => self::buildNonce(16),
+            'nonce_str'       => self::buildNonce(16),
             'out_refund_no'  => $refundNumber,
             'transaction_id' => $transactionId,
             'out_trade_no'   => $payNumber,
