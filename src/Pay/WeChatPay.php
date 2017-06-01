@@ -177,14 +177,8 @@ class WeChatPay extends PayAbstract
 
     protected function parseResponseResult($data)
     {
-        if (!$data || !isset($data['return_code']))
-            throw new ArgumentException("参数无效");
-        if ($data['return_code'] !== 'SUCCESS')
-            throw new ArgumentException($data['return_msg']);
-        if ($data['result_code'] !== 'SUCCESS')
+        if (!($data['return_msg'] == '' && $data['result_code'] == 'SUCCESS'))
             throw new ArgumentException($data['err_code_des']);
-        if (isset($data['err_code']))
-            throw new ArgumentException($data['err_code']);
         if (!$this->verifyData($data))
             throw  new ArgumentException("签名无效");
 
