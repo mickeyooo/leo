@@ -12,7 +12,9 @@ abstract class PayAbstract
      */
     protected function buildSignQueryString(array $queryParams)
     {
-        $queryParams = array_filter($queryParams);
+        $queryParams = array_filter($queryParams, function($p) {
+            return $p !== '';
+        });
         ksort($queryParams);
 
         return urldecode(http_build_query($queryParams));
