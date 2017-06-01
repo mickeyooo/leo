@@ -59,7 +59,7 @@ class WeChatPay extends PayAbstract
      * @param int    $totalFee      订单总金额，单位为分
      * @param string $transactionId 微信生成的订单号，在支付通知中有返回
      *
-     * @return bool
+     * @return array
      *
      * @throw \Exception
      */
@@ -88,9 +88,7 @@ class WeChatPay extends PayAbstract
         $data['sign'] = $this->getSign($data);
         $response     = $this->post(self::toXml($data), 'https://api.mch.weixin.qq.com/secapi/pay/refund', true);
 
-        $this->parseResponseResult(self::fromXml($response));
-
-        return true;
+        return $this->parseResponseResult(self::fromXml($response));
     }
 
     /**
@@ -177,8 +175,12 @@ class WeChatPay extends PayAbstract
 
     protected function parseResponseResult($data)
     {
-        if (!($data['return_msg'] == '' && $data['result_code'] == 'SUCCESS'))
+        if(!isset($data['return_code']) || $data['result_code'] != 'SUCCESS')
+            throw new ArgumentException($data['err_code_des'] ?: $data['return_msg']);
+
+        if ($data['result_code'] != 'SUCCESS')
             throw new ArgumentException($data['err_code_des']);
+
         if (!$this->verifyData($data))
             throw  new ArgumentException("签名无效");
 
